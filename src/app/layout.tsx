@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   title: 'Interview Prep Hub - IIIT Manipur',
   description: 'Practice real interview questions from top companies, shared by verified alumni.',
   keywords: ['interview', 'preparation', 'coding', 'questions', 'alumni', 'IIIT Manipur'],
