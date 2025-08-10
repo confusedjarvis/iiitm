@@ -265,7 +265,7 @@ export default function QuestionsPage() {
               </div>
               <div class="content">${question.questionText || question.description}</div>
               <div class="tags">
-                ${question.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                ${question.tags.map((tag: string) => `<span class="tag">${tag}</span>`).join('')}
               </div>
             </body>
           </html>

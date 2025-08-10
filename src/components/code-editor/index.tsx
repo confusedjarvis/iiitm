@@ -9,7 +9,7 @@ import {
   Settings, 
   ChevronDown,
   Clock,
-  Memory,
+  HardDrive,
   CheckCircle,
   XCircle,
   AlertCircle
@@ -353,7 +353,7 @@ export function CodeEditor({
                   )}
                   {executionResult.memory && (
                     <span className="text-xs text-gray-500 flex items-center">
-                      <Memory className="w-3 h-3 mr-1" />
+                      <HardDrive className="w-3 h-3 mr-1" />
                       {(executionResult.memory / 1024).toFixed(1)}MB
                     </span>
                   )}

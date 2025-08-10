@@ -21,6 +21,10 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          if (!db) {
+            throw new Error('Database not configured');
+          }
+          
           const [user] = await db
             .select()
             .from(users)
@@ -69,15 +73,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account, profile }) {
       if (user) {
-        token.role = user.role;
-        token.isVerified = user.isVerified;
-        token.institute = user.institute;
-        token.graduationYear = user.graduationYear;
+        token.role = (user as any).role;
+        token.isVerified = (user as any).isVerified;
+        token.institute = (user as any).institute;
+        token.graduationYear = (user as any).graduationYear;
       }
 
       // Handle LinkedIn sign-in for verification
       if (account?.provider === 'linkedin' && profile) {
         try {
+          if (!db) {
+            return token;
+          }
+          
           // Check if user exists
           const [existingUser] = await db
             .select()
@@ -86,13 +94,20 @@ export const authOptions: NextAuthOptions = {
             .limit(1);
 
           if (existingUser) {
-            // Store LinkedIn verification data
+            // Store LinkedIn verification data with proper typing
+            const linkedinProfile = profile as any;
+            const profileUrl = linkedinProfile.vanityName 
+              ? `https://linkedin.com/in/${linkedinProfile.vanityName}`
+              : linkedinProfile.id 
+                ? `https://linkedin.com/in/${linkedinProfile.id}`
+                : 'https://linkedin.com/';
+
             await db.insert(linkedinVerifications).values({
               userId: existingUser.id,
-              linkedinProfile: `https://linkedin.com/in/${(profile as any).vanityName || profile.id}`,
+              linkedinProfile: profileUrl,
               linkedinData: profile,
               status: 'pending',
-            });
+            }).onConflictDoNothing();
 
             token.linkedinVerificationPending = true;
           }
@@ -106,12 +121,12 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub!;
-        session.user.role = token.role as string;
-        session.user.isVerified = token.isVerified as boolean;
-        session.user.institute = token.institute as string;
-        session.user.graduationYear = token.graduationYear as number;
-        session.user.linkedinVerificationPending = token.linkedinVerificationPending as boolean;
+        (session.user as any).id = token.sub!;
+        (session.user as any).role = token.role as string;
+        (session.user as any).isVerified = token.isVerified as boolean;
+        (session.user as any).institute = token.institute as string;
+        (session.user as any).graduationYear = token.graduationYear as number;
+        (session.user as any).linkedinVerificationPending = token.linkedinVerificationPending as boolean;
       }
       return session;
     },
@@ -126,6 +141,10 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'linkedin') {
         // Only allow LinkedIn sign-in for existing users (for verification)
         try {
+          if (!db) {
+            return false;
+          }
+          
           const [existingUser] = await db
             .select()
             .from(users)
@@ -145,7 +164,6 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: '/auth/signin',
-    signUp: '/auth/signup',
   },
 
   session: {

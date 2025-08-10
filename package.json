@@ -26,7 +26,6 @@
     "drizzle-orm": "^0.29.0",
     "drizzle-kit": "^0.20.0",
     "postgres": "^3.4.3",
-    "@vercel/postgres": "^0.5.1",
     "next-auth": "^4.24.5",
     "bcryptjs": "^2.4.3",
     "@types/bcryptjs": "^2.4.6",
